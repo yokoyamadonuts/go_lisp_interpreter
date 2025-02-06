@@ -42,6 +42,12 @@ func eval(expr interface{}, env map[string]interface{}) interface{} {
 				newEnv[param.(string)] = eval(args[i], env)
 			}
 			return eval(fn[2], newEnv)
+		case "car":
+			return eval(v[1], env).([]interface{})[0]
+		case "cdr":
+			return eval(v[1], env).([]interface{})[1:]
+		case "cons":
+			return append([]interface{}{eval(v[1], env)}, eval(v[2], env).([]interface{})...)
 		default:
 			return "未知の演算"
 		}
