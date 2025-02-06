@@ -16,6 +16,12 @@ func eval(expr interface{}, env map[string]interface{}) interface{} {
 			return eval(v[1], env).(int) * eval(v[2], env).(int)
 		case "/":
 			return eval(v[1], env).(int) / eval(v[2], env).(int)
+		case "<":
+			return eval(v[1], env).(int) < eval(v[2], env).(int)
+		case ">":
+			return eval(v[1], env).(int) > eval(v[2], env).(int)
+		case "=":
+			return eval(v[1], env).(int) == eval(v[2], env).(int)
 		case "if":
 			cond := eval(v[1], env).(bool)
 			if cond {
