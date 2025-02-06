@@ -1,3 +1,5 @@
+package eval
+
 func eval(expr interface{}, env map[string]interface{}) interface{} {
 	switch v := expr.(type) {
 	case int, float64:
