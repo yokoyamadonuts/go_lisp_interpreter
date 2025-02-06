@@ -29,6 +29,19 @@ func eval(expr interface{}, env map[string]interface{}) interface{} {
 			} else {
 				return eval(v[3], env)
 			}
+		case "lambda":
+			return v // 関数オブジェクトとしてそのまま返す
+		case "define":
+			env[v[1].(string)] = eval(v[2], env)
+			return nil
+		case "apply":
+			fn := eval(v[1], env).([]interface{})
+			args := v[2].([]interface{})
+			newEnv := make(map[string]interface{})
+			for i, param := range fn[1].([]interface{}) {
+				newEnv[param.(string)] = eval(args[i], env)
+			}
+			return eval(fn[2], newEnv)
 		default:
 			return "未知の演算"
 		}
