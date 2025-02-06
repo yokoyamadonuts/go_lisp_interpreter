@@ -29,6 +29,8 @@ func eval(expr interface{}, env map[string]interface{}) interface{} {
 			} else {
 				return eval(v[3], env)
 			}
+		default:
+			return "未知の演算"
 		}
 	}
 	return nil
