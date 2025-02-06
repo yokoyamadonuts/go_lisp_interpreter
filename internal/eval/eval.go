@@ -6,6 +6,8 @@ func eval(expr interface{}, env map[string]interface{}) interface{} {
 		return v
 	case string:
 		return env[v]
+	case bool:
+		return v
 	case []interface{}:
 		switch v[0] {
 		case "+":
@@ -49,7 +51,7 @@ func eval(expr interface{}, env map[string]interface{}) interface{} {
 		case "cons":
 			return append([]interface{}{eval(v[1], env)}, eval(v[2], env).([]interface{})...)
 		default:
-			return "未知の演算"
+			return v
 		}
 	}
 	return nil
