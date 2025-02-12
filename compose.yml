@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  lisp_interpreter:
+    build: .
+    container_name: lisp_interpreter
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["./go_lisp_interpreter"]

@@ -21,8 +21,8 @@ func TestEnv_SetAndGet(t *testing.T) {
 	env := NewEnv(nil)
 	env.Set("foo", "bar")
 
-	val := env.Get("foo")
-	if val != "bar" {
+	val, ok := env.Get("foo")
+	if !ok || val != "bar" {
 		t.Errorf("expected value to be 'bar', got %v", val)
 	}
 }
@@ -32,18 +32,18 @@ func TestEnv_GetFromParent(t *testing.T) {
 	parent.Set("foo", "bar")
 
 	env := NewEnv(parent)
-	val := env.Get("foo")
+	val, ok := env.Get("foo")
 
-	if val != "bar" {
+	if !ok || val != "bar" {
 		t.Errorf("expected value to be 'bar', got %v", val)
 	}
 }
 
 func TestEnv_GetNonExistentKey(t *testing.T) {
 	env := NewEnv(nil)
-	val := env.Get("nonexistent")
+	val, ok := env.Get("nonexistent")
 
-	if val != nil {
+	if ok || val != nil {
 		t.Errorf("expected value to be nil, got %v", val)
 	}
 }
