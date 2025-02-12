@@ -1,5 +1,10 @@
 package lexer
 
+import (
+	"strings"
+	"unicode"
+)
+
 type TokenType string
 
 const (
@@ -16,16 +21,33 @@ type Token struct {
 
 func Tokenize(input string) []Token {
 	var tokens []Token
-	for _, ch := range input {
-		switch ch {
-		case '(':
-			tokens = append(tokens, Token{Type: TokenParenL, Value: "("})
-		case ')':
-			tokens = append(tokens, Token{Type: TokenParenR, Value: ")"})
-		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-			tokens = append(tokens, Token{Type: TokenNumber, Value: string(ch)})
+	input = strings.TrimSpace(input)
+	i := 0
+
+	for i < len(input) {
+		switch ch := input[i]; {
+		case ch == '(':
+			tokens = append(tokens, Token{TokenParenL, "("})
+			i++
+		case ch == ')':
+			tokens = append(tokens, Token{TokenParenR, ")"})
+			i++
+		case unicode.IsDigit(rune(ch)):
+			start := i
+			for i < len(input) && unicode.IsDigit(rune(input[i])) {
+				i++
+			}
+			tokens = append(tokens, Token{TokenNumber, input[start:i]})
+		case unicode.IsLetter(rune(ch)):
+			start := i
+			for i < len(input) && (unicode.IsLetter(rune(input[i])) || unicode.IsDigit(rune(input[i]))) {
+				i++
+			}
+			tokens = append(tokens, Token{TokenSymbol, input[start:i]})
+		case unicode.IsSpace(rune(ch)):
+			i++
 		default:
-			tokens = append(tokens, Token{Type: TokenSymbol, Value: string(ch)})
+			panic("Unexpected character: " + string(ch))
 		}
 	}
 	return tokens
