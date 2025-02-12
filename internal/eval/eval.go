@@ -1,58 +1,58 @@
 package eval
 
-func eval(expr interface{}, env map[string]interface{}) interface{} {
-	switch v := expr.(type) {
-	case int, float64:
-		return v
-	case string:
-		return env[v]
-	case bool:
-		return v
-	case []interface{}:
-		switch v[0] {
-		case "+":
-			return eval(v[1], env).(int) + eval(v[2], env).(int)
-		case "-":
-			return eval(v[1], env).(int) - eval(v[2], env).(int)
-		case "*":
-			return eval(v[1], env).(int) * eval(v[2], env).(int)
-		case "/":
-			return eval(v[1], env).(int) / eval(v[2], env).(int)
-		case "<":
-			return eval(v[1], env).(int) < eval(v[2], env).(int)
-		case ">":
-			return eval(v[1], env).(int) > eval(v[2], env).(int)
-		case "=":
-			return eval(v[1], env).(int) == eval(v[2], env).(int)
-		case "if":
-			cond := eval(v[1], env).(bool)
-			if cond {
-				return eval(v[2], env)
-			} else {
-				return eval(v[3], env)
-			}
-		case "lambda":
-			return v // 関数オブジェクトとしてそのまま返す
-		case "define":
-			env[v[1].(string)] = eval(v[2], env)
-			return nil
-		case "apply":
-			fn := eval(v[1], env).([]interface{})
-			args := v[2].([]interface{})
-			newEnv := make(map[string]interface{})
-			for i, param := range fn[1].([]interface{}) {
-				newEnv[param.(string)] = eval(args[i], env)
-			}
-			return eval(fn[2], newEnv)
-		case "car":
-			return eval(v[1], env).([]interface{})[0]
-		case "cdr":
-			return eval(v[1], env).([]interface{})[1:]
-		case "cons":
-			return append([]interface{}{eval(v[1], env)}, eval(v[2], env).([]interface{})...)
-		default:
-			return v
+import (
+	"fmt"
+	"go_lisp_interpreter/internal/parser"
+)
+
+func Eval(ast parser.Node, env *Env) interface{} {
+	if ast.Type == "ATOM" {
+		if val, ok := env.vars[ast.Value]; ok {
+			return val
 		}
+		return ast.Value
 	}
-	return nil
+
+	operator := ast.Children[0].Value
+	args := ast.Children[1:]
+
+	switch operator {
+	case "+":
+		return Eval(args[0], env).(int) + Eval(args[1], env).(int)
+	case "-":
+		return Eval(args[0], env).(int) - Eval(args[1], env).(int)
+	case "*":
+		return Eval(args[0], env).(int) * Eval(args[1], env).(int)
+	case "/":
+		return Eval(args[0], env).(int) / Eval(args[1], env).(int)
+	case "define":
+		env.vars[args[0].Value] = Eval(args[1], env)
+		return nil
+	case "if":
+		cond := Eval(args[0], env).(bool)
+		if cond {
+			return Eval(args[1], env)
+		} else {
+			return Eval(args[2], env)
+		}
+	case "lambda":
+		return ast // Lambda式を関数オブジェクトとして返す
+	case "apply":
+		fn := Eval(args[0], env).(parser.Node)
+		newEnv := NewEnv()
+		for i, param := range fn.Children[1].Children {
+			newEnv.vars[param.Value] = Eval(args[1].Children[i], env)
+		}
+		return Eval(fn.Children[2], newEnv)
+	case "car":
+		list := Eval(args[0], env).([]interface{})
+		return list[0]
+	case "cdr":
+		list := Eval(args[0], env).([]interface{})
+		return list[1:]
+	case "cons":
+		return append([]interface{}{Eval(args[0], env)}, Eval(args[1], env).([]interface{})...)
+	default:
+		panic(fmt.Sprintf("Unknown operator: %s", operator))
+	}
 }
