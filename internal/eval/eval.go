@@ -58,16 +58,21 @@ func eval(ast parser.Node, env *Env) interface{} {
 					newEnv.Set(param.Value, eval(ast.Children[2].Children[i], env))
 				}
 				return eval(fn.Children[2], newEnv)
+			case "cons":
+				return append([]interface{}{eval(ast.Children[1], env)}, eval(ast.Children[2], env).([]interface{})...)
 			case "car":
 				list := eval(ast.Children[1], env).([]interface{})
 				return list[0]
 			case "cdr":
 				list := eval(ast.Children[1], env).([]interface{})
 				return list[1:]
-			case "cons":
-				return append([]interface{}{eval(ast.Children[1], env)}, eval(ast.Children[2], env).([]interface{})...)
 			default:
-				panic(fmt.Sprintf("Unknown operator: %s", first.Value))
+				// 先頭要素が演算子でない場合、そのままリストとして評価
+				result := []interface{}{}
+				for _, child := range ast.Children {
+					result = append(result, eval(child, env))
+				}
+				return result
 			}
 		}
 		// 演算子ではなくデータとしてのリストである場合、すべての要素を評価する
