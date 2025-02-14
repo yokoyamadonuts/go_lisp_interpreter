@@ -59,7 +59,7 @@ func TestEval(t *testing.T) {
 				{Type: "ATOM", Value: "2"},
 				{Type: "ATOM", Value: "3"},
 			}},
-		}}, env: NewEnv(nil), expected: "1"},
+		}}, env: NewEnv(nil), expected: 1},
 		{expr: parser.Node{Type: "LIST", Children: []parser.Node{
 			{Type: "ATOM", Value: "cdr"},
 			{Type: "LIST", Children: []parser.Node{
@@ -67,7 +67,7 @@ func TestEval(t *testing.T) {
 				{Type: "ATOM", Value: "2"},
 				{Type: "ATOM", Value: "3"},
 			}},
-		}}, env: NewEnv(nil), expected: []interface{}{"2", "3"}},
+		}}, env: NewEnv(nil), expected: []interface{}{2, 3}},
 		{expr: parser.Node{Type: "LIST", Children: []parser.Node{
 			{Type: "ATOM", Value: "cons"},
 			{Type: "ATOM", Value: "1"},
@@ -75,7 +75,7 @@ func TestEval(t *testing.T) {
 				{Type: "ATOM", Value: "2"},
 				{Type: "ATOM", Value: "3"},
 			}},
-		}}, env: NewEnv(nil), expected: []interface{}{"1", "2", "3"}},
+		}}, env: NewEnv(nil), expected: []interface{}{1, 2, 3}},
 	}
 
 	for _, test := range tests {
