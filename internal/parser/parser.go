@@ -24,7 +24,24 @@ func parseExpr(tokens []lexer.Token, pos int) (Node, int) {
 			children = append(children, child)
 			pos = newPos
 		}
-		return Node{Type: "LIST", Children: children}, pos + 1
+		return simplifyAST(Node{Type: "LIST", Children: children}), pos + 1
 	}
 	return Node{Type: "ATOM", Value: tokens[pos].Value}, pos + 1
+}
+
+func simplifyAST(ast Node) Node {
+	if ast.Type == "LIST" {
+		if len(ast.Children) == 0 {
+			return ast
+		}
+		first := ast.Children[0]
+		if len(ast.Children) == 1 {
+			return first // 不要なネストを削除
+		}
+		if first.Type == "ATOM" && first.Value == "quote" {
+			return ast
+		}
+		return Node{Type: "LIST", Children: []Node{first, simplifyAST(Node{Type: "LIST", Children: ast.Children[1:]})}}
+	}
+	return ast
 }
