@@ -79,7 +79,7 @@ func TestEval(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := eval(test.expr, test.env)
+		result := Eval(test.expr, test.env)
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf(
 				"FAIL: eval(%v, %v) = %v (type %T); want %v (type %T)",
