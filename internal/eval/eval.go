@@ -6,7 +6,19 @@ import (
 	"strconv"
 )
 
+var evalCache = make(map[string]interface{})
+
 func Eval(ast parser.Node, env *Env) interface{} {
+	key := fmt.Sprintf("%v", ast)
+	if val, ok := evalCache[key]; ok {
+		return val
+	}
+	result := evaluate(ast, env)
+	evalCache[key] = result
+	return result
+}
+
+func evaluate(ast parser.Node, env *Env) interface{} {
 	if ast.Type == "ATOM" {
 		if val, ok := env.Get(ast.Value); ok {
 			return val
